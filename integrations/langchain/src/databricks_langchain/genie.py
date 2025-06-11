@@ -31,7 +31,13 @@ def _query_genie_as_agent(input, genie: Genie, genie_agent_name):
     genie_response = genie.ask_question(message)
 
     if query_result := genie_response.result:
-        return {"messages": [AIMessage(content=query_result)]}
+        # Include query and description along with the result
+        content = {
+            "result": query_result,
+            "query": genie_response.query if hasattr(genie_response, 'query') else message,
+            "description": genie_response.description if hasattr(genie_response, 'description') else ""
+        }
+        return {"messages": [AIMessage(content=str(content))]}
     else:
         return {"messages": [AIMessage(content="")]}
 
