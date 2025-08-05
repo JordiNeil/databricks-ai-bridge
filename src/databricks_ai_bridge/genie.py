@@ -45,12 +45,9 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
             if value is None:
                 row.append(None)
                 continue
-            logger.warning(type_name)
             if type_name in ["INT", "LONG", "SHORT", "BYTE"]:
-                logger.warning(value)
                 row.append(int(value))
             elif type_name in ["FLOAT", "DOUBLE", "DECIMAL"]:
-                logger.warning(value)
                 row.append(float(value))
             elif type_name == "BOOLEAN":
                 row.append(value.lower() == "true")
@@ -60,12 +57,11 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
                 row.append(bytes(value, "utf-8"))
             else:
                 row.append(value)
-            logger.warning("********")
 
         rows.append(row)
 
     dataframe = pd.DataFrame(rows, columns=header)
-    query_result = dataframe.to_markdown()
+    query_result = dataframe.to_markdown(floatfmt='.2f')
     tokens_used = _count_tokens(query_result)
 
     # If the full result fits, return it
@@ -73,7 +69,7 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
         return query_result.strip()
 
     def is_too_big(n):
-        return _count_tokens(dataframe.iloc[:n].to_markdown()) > MAX_TOKENS_OF_DATA
+        return _count_tokens(dataframe.iloc[:n].to_markdown(floatfmt='.2f')) > MAX_TOKENS_OF_DATA
 
     # Use bisect_left to find the cutoff point of rows within the max token data limit in a O(log n) complexity
     # Passing True, as this is the target value we are looking for when _is_too_big returns
@@ -90,7 +86,7 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
 
     # Double-check edge case if we overshot by one
     if _count_tokens(truncated_result) > MAX_TOKENS_OF_DATA:
-        truncated_result = truncated_df.iloc[:-1].to_markdown()
+        truncated_result = truncated_df.iloc[:-1].to_markdown(floatfmt='.2f')
 
     return truncated_result.strip()
 
