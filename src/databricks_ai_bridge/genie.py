@@ -13,6 +13,7 @@ from databricks.sdk import WorkspaceClient
 MAX_TOKENS_OF_DATA = 20000
 MAX_ITERATIONS = 50
 
+logger = logging.getLogger(__name__)
 
 # Define a function to count tokens
 def _count_tokens(text):
@@ -44,10 +45,12 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
             if value is None:
                 row.append(None)
                 continue
-
+            logger.warning(type_name)
             if type_name in ["INT", "LONG", "SHORT", "BYTE"]:
+                logger.warning(value)
                 row.append(int(value))
             elif type_name in ["FLOAT", "DOUBLE", "DECIMAL"]:
+                logger.warning(value)
                 row.append(float(value))
             elif type_name == "BOOLEAN":
                 row.append(value.lower() == "true")
@@ -57,6 +60,7 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
                 row.append(bytes(value, "utf-8"))
             else:
                 row.append(value)
+            logger.warning("********")
 
         rows.append(row)
 
