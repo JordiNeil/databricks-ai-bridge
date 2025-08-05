@@ -82,7 +82,7 @@ def _parse_query_result(resp) -> Union[str, pd.DataFrame]:
     if len(truncated_df) == 0:
         return ""
 
-    truncated_result = truncated_df.to_markdown()
+    truncated_result = truncated_df.to_markdown(floatfmt='.2f')
 
     # Double-check edge case if we overshot by one
     if _count_tokens(truncated_result) > MAX_TOKENS_OF_DATA:
